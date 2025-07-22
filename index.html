@@ -2,45 +2,145 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Database Command Yanshs AI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Command Responder</title>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #121212;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #chat-box {
+      max-width: 600px;
+      width: 100%;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      min-height: 200px;
+    }
+
+    .message {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    .user {
+      background: #333;
+      text-align: right;
+    }
+
+    .bot {
+      background: #222;
+      text-align: left;
+    }
+
+    form {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: #2a2a2a;
+      color: white;
+    }
+
+    button {
+      background: #00bcd4;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    button:hover {
+      background: #0197a3;
+    }
+  </style>
 </head>
-<body class="bg-black text-white font-mono">
+<body>
+  <h1><i data-lucide="bot"></i> Suki AI</h1>
+  
+  <div id="chat-box"></div>
 
-  <header class="text-center py-6 bg-gray-900 shadow-md">
-    <h1 class="text-2xl font-bold flex justify-center items-center gap-2">
-      <span>🤖 Database Command</span> <span class="text-blue-400">Yanshs AI</span>
-    </h1>
-    <p class="text-sm text-gray-400">Create by Yan</p>
-  </header>
-
-  <main class="p-6">
-    <div id="commands" class="grid md:grid-cols-2 gap-6"></div>
-  </main>
+  <form id="command-form">
+    <input type="text" id="command-input" placeholder="Tulis perintah..." autocomplete="off"/>
+    <button type="submit"><i data-lucide="send"></i> Kirim</button>
+  </form>
 
   <script>
+    lucide.createIcons();
+
+    let commands = [];
+
+    // Ambil data dari command.json
     fetch('yanshs_ai_data_01.json')
       .then(res => res.json())
       .then(data => {
-        const container = document.getElementById('commands');
-        data.forEach(item => {
-          const card = document.createElement('div');
-          card.className = "bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700 hover:scale-[1.01] transition-all";
-
-          card.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-              <h2 class="text-lg font-bold text-blue-300">Command: <span class="text-white">${item.command}</span></h2>
-              <div class="text-gray-400 text-sm">ID: ${item.id}</div>
-            </div>
-            <p class="text-green-400"><strong>Response:</strong> ${item.response}</p>
-            <p class="mt-2 text-sm text-gray-400">Kategori: ${item.category}</p>
-          `;
-          container.appendChild(card);
-        });
+        commands = data;
       });
-  </script>
 
+    const form = document.getElementById('command-form');
+    const input = document.getElementById('command-input');
+    const chatBox = document.getElementById('chat-box');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const userInput = input.value.trim().toLowerCase();
+      if (!userInput) return;
+
+      addMessage(userInput, 'user');
+      input.value = '';
+
+      const matched = commands.filter(cmd => cmd.command.toLowerCase() === userInput);
+
+      if (matched.length > 0) {
+        const randomResponse = matched[Math.floor(Math.random() * matched.length)].response;
+        setTimeout(() => {
+          addMessage(randomResponse, 'bot');
+        }, 300);
+      } else {
+        setTimeout(() => {
+          addMessage("Maaf, aku nggak ngerti perintah itu.", 'bot');
+        }, 300);
+      }
+    });
+
+    function addMessage(text, type) {
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.innerText = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
 </body>
 </html>
