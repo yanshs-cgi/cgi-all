@@ -1,4 +1,4 @@
-lucide.createIcons();
+
 
 let commands = [];
 
