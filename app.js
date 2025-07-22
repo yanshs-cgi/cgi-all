@@ -1,32 +1,31 @@
-const sukiFallbacks = [
-  "Hah? Maksud lu apa sih?! 🤨",
-  "Gak ngerti lu ngomong apa deh!",
-  "Ulangi yang bener napa.",
-  "Apaan tuh? Bahasa planet Mars?!"
-];
+async function sendInput() {
+  const inputElement = document.getElementById("userInput");
+  const userText = inputElement.value.trim();
 
-function sendInput() {
-  const inputField = document.getElementById("userInput");
-  const userText = inputField.value.trim();
   if (!userText) return;
 
-  fetch("https://yanshs-cgi.github.io/cgi-all/cgi-ai-yansh.json")
-    .then(res => res.json())
-    .then(data => {
-      const cmd = userText.toLowerCase();
-      if (data[cmd]) {
-        displayResponse(data[cmd]);
-      } else {
-        const fallback = sukiFallbacks[Math.floor(Math.random() * sukiFallbacks.length)];
-        displayResponse(fallback);
-      }
-    });
+  inputElement.value = "";
+  displayResponse("🧑 Kamu: " + userText);
+
+  try {
+    const res = await fetch("https://yanshs-cgi.github.io/cgi-all/cgi-ai-yansh.json");
+    const json = await res.json();
+
+    const userLower = userText.toLowerCase();
+    const match = json.find(cmd => userLower.includes(cmd.tanya.toLowerCase()));
+
+    if (match) {
+      displayResponse("🤖 Suki: " + match.jawab);
+    } else {
+      displayResponse("🤖 Suki: Maaf, aku nggak paham maksudmu.");
+    }
+  } catch (err) {
+    displayResponse("⚠️ Error saat memproses jawaban.");
+    console.error(err);
+  }
 }
 
-function displayResponse(response) {
-  const chatBox = document.getElementById("chatBox");
-  const botMessage = document.createElement("div");
-  botMessage.className = "bot-message";
-  botMessage.textContent = response;
-  chatBox.appendChild(botMessage);
+function displayResponse(text) {
+  const resBox = document.getElementById("response");
+  resBox.innerHTML += text + "\n";
 }
