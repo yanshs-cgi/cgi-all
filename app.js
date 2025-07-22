@@ -77,18 +77,24 @@ form.addEventListener('submit', e => {
   addMessage(userInput, 'user');
   input.value = '';
 
-  const matched = commands.filter(cmd => cmd.command.toLowerCase() === userInput);
-  if (matched.length > 0) {
-    const randomResponse = matched[Math.floor(Math.random() * matched.length)].response;
-    setTimeout(() => {
-      addMessage(randomResponse, 'bot');
-    }, 300);
-  } else {
-    const randomFallback = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-    setTimeout(() => {
-      addMessage(randomFallback, 'bot');
-    }, 300);
-  }
+  const allCommands = commands.map(cmd => cmd.command.toLowerCase());
+const bestMatch = stringSimilarity.findBestMatch(userInput, allCommands);
+
+const bestCommand = bestMatch.bestMatch.target;
+const bestScore = bestMatch.bestMatch.rating;
+
+if (bestScore > 0.6) {
+  const matched = commands.filter(cmd => cmd.command.toLowerCase() === bestCommand);
+  const randomResponse = matched[Math.floor(Math.random() * matched.length)].response;
+  setTimeout(() => {
+    addMessage(randomResponse, 'bot');
+  }, 300);
+} else {
+  const randomFallback = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+  setTimeout(() => {
+    addMessage(randomFallback, 'bot');
+  }, 300);
+}
 });
 
 function addMessage(text, type) {
