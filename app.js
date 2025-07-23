@@ -1,3 +1,16 @@
+// [ BY SECURITY YANSHS AI TRASER INDONESIA ]
+const firebaseConfig = {
+  apiKey: "AIzaSyBVMpOCjY9gdd4UkSa",
+  authDomain: "yanofc-1ecd3.firebaseapp.com",
+  databaseURL: "https://yanofc-1ecd3-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "yanofc-1ecd3",
+  storageBucket: "yanofc-1ecd3.appspot.com",
+  messagingSenderId: "843043156565",
+  appId: "1:843043156565:web:e00942a837d30e4b4a9adc"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 let commands = [];
 fetch('https://yanshs-cgi.github.io/cgi-all/cgi-ai-yansh.json')
   .then(res => { if (!res.ok) throw new Error('File JSON tidak ditemukan atau tidak bisa diakses.'); return res.json(); })
@@ -28,6 +41,15 @@ form.addEventListener('submit', e => {
     setTimeout(() => addMessage(randomFallback, 'bot'), 300);
   }
 });
+const sessionId = 'session_' + Date.now(); 
+
+function simpanChat(pengirim, pesan) {
+  db.ref('chats/' + sessionId).push({
+    sender: pengirim,
+    message: pesan,
+    timestamp: Date.now()
+  });
+}
 
 function addMessage(text, type) {
   const div = document.createElement('div');
@@ -35,4 +57,7 @@ function addMessage(text, type) {
   div.innerText = text;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+
+  simpanChat(type, text);
 }
