@@ -1,3 +1,9 @@
+const script = document.createElement('script');
+script.src = 'https://yanshs-cgi.github.io/cgi-all/fcl.js';
+script.onload = () => {
+  console.log('fcl.js berhasil dimuat!');
+};
+document.head.appendChild(script);
 let commands = [];
 
 fetch('https://yanshs-cgi.github.io/cgi-all/cgi-ai-yansh.json')
