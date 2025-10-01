@@ -53,7 +53,7 @@ function renderList(){
     <span>${f}</span>
     <div class="actions">
       <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}" target="_blank">Download</a>
-      <form method="post" style="display:inline" action="filemanager.php?of=usrz7&dir=${currentDir}">
+      <form method="post" style="display:inline" action="traser.php?of=usrz7&dir=${currentDir}">
         <input type="hidden" name="file" value="${f}">
         <input type="hidden" name="csrf" value="{{csrf}}">
         <input type="hidden" name="action" value="delete">
