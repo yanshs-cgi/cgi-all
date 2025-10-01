@@ -3,19 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>File Manager</title>
+<title>Traser Sec Team</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0f172a}
 .card{max-width:1000px;margin:auto;padding:20px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
 .button{padding:8px 12px;border-radius:8px;border:0;background:#0f172a;color:#fff;cursor:pointer;margin-left:4px}
-.list{margin-top:16px}
-.item{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px solid #eef2f7;align-items:center}
-.actions a,.actions button{margin-left:6px;text-decoration:none;color:#0f172a;background:#eef2ff;padding:4px 6px;border-radius:6px;border:1px solid #e2efff;cursor:pointer;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
+.item{padding:12px;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;justify-content:space-between}
+.item span{word-break:break-all;font-size:14px}
+.actions{margin-top:8px;display:flex;gap:6px}
+.actions a,.actions button{flex:1;text-align:center;text-decoration:none;color:#0f172a;background:#eef2ff;padding:6px 4px;border-radius:6px;border:1px solid #e2efff;cursor:pointer;font-size:13px}
 .actions button{background:#ffeef0;border-color:#fbb6c2;color:#b91c1c}
 .breadcrumb{margin-bottom:12px;font-size:14px;color:#6b7280}
 input[type=file]{display:none}
 .notice{margin-top:10px;color:#b91c1c}
+.preview{margin-top:16px;height:300px;border-radius:10px;border:1px dashed #eef2f7;display:flex;align-items:center;justify-content:center;color:#6b7280;overflow:auto}
 </style>
 </head>
 <body>
@@ -34,27 +37,44 @@ input[type=file]{display:none}
 
   <div class="notice">{{opmsg}}</div>
 
-  <div class="list" id="filelist"></div>
+  <div class="grid" id="filelist"></div>
+
+  <div class="preview" id="preview">Pilih file untuk preview (image/pdf)</div>
 </div>
 
 <script>
 const FILES=JSON.parse('{{filelist}}');
 const currentDir='{{currentDir}}';
 const listEl=document.getElementById('filelist');
+const previewEl=document.getElementById('preview');
 
 function renderList(){
   listEl.innerHTML=FILES.map(f=>`<div class="item">
     <span>${f}</span>
-    <span class="actions">
-      <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}">Download</a>
+    <div class="actions">
+      <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}" target="_blank">Download</a>
       <form method="post" style="display:inline" action="filemanager.php?of=usrz7&dir=${currentDir}">
         <input type="hidden" name="file" value="${f}">
         <input type="hidden" name="csrf" value="{{csrf}}">
         <input type="hidden" name="action" value="delete">
         <button type="submit">Delete</button>
       </form>
-    </span>
+    </div>
   </div>`).join('');
+
+  document.querySelectorAll('#filelist .item span').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const name=el.textContent;
+      const ext=name.split('.').pop().toLowerCase();
+      if(['png','jpg','jpeg','webp'].includes(ext)){
+        previewEl.innerHTML=`<img src="download.php?file=${encodeURIComponent(name)}&dir=${currentDir}" style="max-width:100%;max-height:100%;border-radius:8px"/>`;
+      } else if(ext==='pdf'){
+        previewEl.innerHTML=`<iframe src="download.php?file=${encodeURIComponent(name)}&dir=${currentDir}" style="width:100%;height:100%;border:0;border-radius:8px"></iframe>`;
+      } else {
+        previewEl.textContent='Tidak ada preview untuk file ini';
+      }
+    });
+  });
 }
 
 renderList();
