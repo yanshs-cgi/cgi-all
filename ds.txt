@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>STAMPED BY TRASER SEC TEAM</title>
+  <title>Hacked BY TRASER SEC TEAM</title>
 
  
   <meta property="og:title" content="Stamped by Traser Sec Team">
@@ -168,7 +168,7 @@
       <img src="https://files.catbox.moe/26row7.gif" alt="Traser Sec Team badge">
     </div>
 
-    <h1>Touch By <span>TraserSecTeam</span></h1>
+    <h1>Hacked By <span>TraserSecTeam</span></h1>
     <h2>not damaging, just boring</h2>
 
     <div class="art" aria-hidden="true">
