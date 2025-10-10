@@ -22,7 +22,7 @@
   <meta name="ceo:position" content="Founder & CEO">
   <meta name="organization" content="Traser Sec Team">
   <meta name="contact:telegram" content="t.me/trasersecteam">
-  <meta name="contact:email" content="trasersecteam@gmail.com"> <!-- ganti bila perlu -->
+  <meta name="contact:email" content="trasersecteam@gmail.com"> 
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="black">
 
