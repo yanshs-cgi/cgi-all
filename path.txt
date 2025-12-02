@@ -1,0 +1,15 @@
+/admin/
+/administrator/
+/login/
+/wp-admin/
+/admin.php
+/login.php
+/admin/login.php
+/cpanel
+/webmail
+/phpmyadmin/
+/test/
+/backup/
+/config/
+/uploads/
+/assets/
